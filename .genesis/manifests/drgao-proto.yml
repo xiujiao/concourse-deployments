@@ -1,0 +1,156 @@
+instance_groups:
+- azs:
+  - z1
+  - z2
+  - z3
+  instances: 1
+  jobs:
+  - name: haproxy
+    properties:
+      ha_proxy:
+        backend_port: 8080
+        backend_servers:
+        - 10.213.13.22
+        https_redirect_all: true
+        ssl_pem: REDACTED
+    release: haproxy
+  name: haproxy
+  networks:
+  - name: concourse
+    static_ips:
+    - 10.213.13.21
+  stemcell: default
+  vm_type: small
+- azs:
+  - z1
+  - z2
+  - z3
+  instances: 1
+  jobs:
+  - name: tsa
+    properties:
+      authorize_generated_worker_key: false
+      authorized_keys:
+      - REDACTED
+      host_key: REDACTED
+      host_public_key: REDACTED
+    release: concourse
+  - name: atc
+    properties:
+      basic_auth_password: REDACTED
+      basic_auth_username: concourse
+      bind_port: 8080
+      external_url: https://10.213.13.21
+      postgresql:
+        database: atc
+        role:
+          name: atc
+          password: REDACTED
+      publicly_viewable: true
+    release: concourse
+  name: web
+  networks:
+  - name: concourse
+    static_ips:
+    - 10.213.13.22
+  stemcell: default
+  vm_type: small
+- azs:
+  - z1
+  - z2
+  - z3
+  instances: 1
+  jobs:
+  - name: postgres
+    properties:
+      databases:
+        databases:
+        - name: atc
+        port: 5432
+        roles:
+        - name: atc
+          password: REDACTED
+    release: postgres
+  - name: locker
+    properties:
+      locker:
+        password: REDACTED
+        ssl_cert: REDACTED
+        ssl_key: REDACTED
+        user: locker
+    release: locker
+  name: db
+  networks:
+  - name: concourse
+    static_ips:
+    - 10.213.13.24
+  persistent_disk_pool: concourse
+  stemcell: default
+  vm_type: small
+- azs:
+  - z1
+  - z2
+  - z3
+  instances: 3
+  jobs:
+  - name: groundcrew
+    properties:
+      tsa:
+        host_public_key: REDACTED
+        private_key: REDACTED
+    release: concourse
+  - name: baggageclaim
+    properties: {}
+    release: concourse
+  - name: garden
+    properties:
+      garden:
+        enable_graph_cleanup: true
+        listen_address: 0.0.0.0:7777
+        listen_network: tcp
+    release: garden-runc
+  name: worker
+  networks:
+  - name: concourse
+  stemcell: default
+  update:
+    max_in_flight: 3
+    serial: true
+  vm_type: small
+name: drgao-proto-concourse
+releases:
+- name: concourse
+  sha1: 1257bdcd3181ab0a669bc9e34cd87aff584f007b
+  url: https://bosh.io/d/github.com/concourse/concourse?v=3.6.0
+  version: 3.6.0
+- name: postgres
+  sha1: 3f378bcab294e20316171d4e656636df88763664
+  url: https://bosh.io/d/github.com/cloudfoundry/postgres-release?v=20
+  version: 20
+- name: locker
+  sha1: ccfcc48d63555a3733c3594d9429a5c1875a9dd2
+  url: https://github.com/cloudfoundry-community/locker-boshrelease/releases/download/v0.2.1/locker-0.2.1.tgz
+  version: 0.2.1
+- name: haproxy
+  sha1: 8ebad4c8e57fac2fba9da07536f61efe8141be6f
+  url: https://bosh.io/d/github.com/cloudfoundry-incubator/haproxy-boshrelease?v=8.4.2
+  version: 8.4.2
+- name: garden-runc
+  sha1: 9cccd7685ac075ad6956cba3ab5881e3435cd7e3
+  url: https://bosh.io/d/github.com/cloudfoundry/garden-runc-release?v=1.9.4
+  version: 1.9.4
+- name: slack-notification-resource
+  sha1: a64c65d1f23ea089746e698f29dbe522dd716c1b
+  url: https://bosh.io/d/github.com/cloudfoundry-community/slack-notification-resource-boshrelease?v=9
+  version: 9
+stemcells:
+- alias: default
+  os: ubuntu-trusty
+  version: latest
+update:
+  canaries: 1
+  canary_watch_time: 1000-60000
+  max_in_flight: 4
+  serial: false
+  update_watch_time: 1000-60000
+

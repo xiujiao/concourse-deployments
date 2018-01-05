@@ -1,0 +1,15 @@
+---
+kit:
+  name:    concourse
+  version: 1.0.1
+  subkits:
+  - self-signed-cert
+
+params:
+  env:   drgao-proto
+  vault: drgao/proto/concourse
+  bosh: drgao-bill-proto
+
+  # The external domain for concourse is the IP/DNS entry users will use to access Concourse.
+  # Do not include 'https://' in this value.
+  external_domain: 10.213.13.21

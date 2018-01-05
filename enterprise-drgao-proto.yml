@@ -1,0 +1,31 @@
+---
+kit:
+  name:    concourse
+  version: 1.0.1
+  subkits:
+  - github-enterprise-oauth
+  - self-signed-cert
+
+params:
+  env:   drgao-proto
+  vault: drgao/proto/concourse
+  bosh: drgao-bill-proto
+  # The external domain for concourse is the IP/DNS entry users will use to access Concourse.
+  # Do not include 'https://' in this value.
+  external_domain: 10.213.13.21
+
+  # Concourse authorizes access based off of GitHub Organizations. Specify all the
+  # orgs whose users will be given access to Concourse here.
+  authz_allowed_orgs: sw
+
+  # This should be the URL for your GitHub Enteprise installation's API
+  # (e.g. https://github.example.com/api/v3/)
+  github_api_url: fjskfjs
+
+  # This should be the URL used by GitHub Enterprise to generate OAuth Tokens
+  # (e.g. https://github.example.com/login/oauth/access_token)
+  github_token_url: fjsk
+
+  # This should be the URL used by GitHub Enterprise to authorize OAuth requests
+  # (e.g. https://github.example.com/login/oauth/authorize)
+  github_auth_url: fjsk
